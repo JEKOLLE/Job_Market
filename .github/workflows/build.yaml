@@ -51,7 +51,6 @@ jobs:
           docker build . -t ${{ secrets.DOCKER_USERNAME }}/job_market:latest
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
           docker push ${{ secrets.DOCKER_USERNAME }}/job_market:latest
-          docker run -d --name elasticsearch -p 9200:9200 docker.elastic.co/elasticsearch/elasticsearch:8.14.0
 
       # Étape de Continuous Deployment : Déployer l'application sur le serveur distant
       - name: Continuous Deployment
