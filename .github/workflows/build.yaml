@@ -4,7 +4,7 @@ name: Action
 on:
   push:
     branches:
-      - JulesAPI
+      - main
 
 # Définition des jobs du workflow
 jobs:
@@ -20,8 +20,6 @@ jobs:
         ports:
           - 9200:9200
         environment:
-          ELASTIC_USERNAME: ${{ secrets.ELASTIC_USERNAME }}
-          ELASTIC_PASSWORD: ${{ secrets.ELASTIC_PASSWORD }}
           discovery.type: single-node
 
     steps:
@@ -33,9 +31,8 @@ jobs:
 
       # Étape pour attendre que Elasticsearch soit prêt
       - name: Wait for Elasticsearch
-        run:
-          | # Exécute une boucle jusqu'à ce que la commande curl réussisse à se connecter à Elasticsearch
-          until curl -sS -u ${{ secrets.ELASTIC_USERNAME }}:${{ secrets.ELASTIC_PASSWORD }} http://elasticsearch:9200; do
+        run: |
+          until curl -sS http://elasticsearch:9200; do
             echo "Waiting for Elasticsearch...";
             sleep 10;
           done
@@ -67,13 +64,13 @@ jobs:
             docker container rm elasticsearch || true
 
             # Démarrer un nouveau conteneur Elasticsearch
-            docker run -d --name elasticsearch --network job_network -p 9200:9200 -e "discovery.type=single-node" -e "ELASTIC_USERNAME=${{ secrets.ELASTIC_USERNAME }}" -e "ELASTIC_PASSWORD=${{ secrets.ELASTIC_PASSWORD }}" docker.elastic.co/elasticsearch/elasticsearch:8.14.0
+            docker run -d --name elasticsearch --network job_network -p 9200:9200 -e "discovery.type=single-node" docker.elastic.co/elasticsearch/elasticsearch:8.14.0
 
             # Attendre que Elasticsearch soit prêt
-            until curl -sS -u ${{ secrets.ELASTIC_USERNAME }}:${{ secrets.ELASTIC_PASSWORD }} http://elasticsearch:9200; do
+            until curl -sS http://elasticsearch:9200; do
               echo "Waiting for Elasticsearch...";
               sleep 10;
             done
 
             # Démarrer un nouveau conteneur pour l'application
-            docker run -d --name job_market_api --network job_network -p 8000:8000 -e ELASTIC_HOST=elasticsearch -e ELASTIC_PORT=9200 -e ELASTIC_USERNAME=${{ secrets.ELASTIC_USERNAME }} -e ELASTIC_PASSWORD=${{ secrets.ELASTIC_PASSWORD }} ${{ secrets.DOCKER_USERNAME }}/job_market:latest
+            docker run -d --name job_market_api --network job_network -p 8000:8000 -e ELASTIC_HOST=elasticsearch -e ELASTIC_PORT=9200 ${{ secrets.DOCKER_USERNAME }}/job_market:latest
