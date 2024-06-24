@@ -8,8 +8,8 @@ import os
 app = FastAPI()
 
 # Initialiser le client Elasticsearch
-ES_HOST = os.getenv("ELASTIC_HOST", "elasticsearch")
-ES_PORT = os.getenv("ELASTIC_PORT", "9200")
+ES_HOST = "elasticsearch"
+ES_PORT = 9200
 es = AsyncElasticsearch(hosts=[{"host": ES_HOST, "port": ES_PORT}])
 
 

@@ -4,7 +4,7 @@ name: Action
 on:
   push:
     branches:
-      - main
+      - JulesAPI
 
 # Définition des jobs du workflow
 jobs:
@@ -19,8 +19,6 @@ jobs:
         image: docker.elastic.co/elasticsearch/elasticsearch:8.14.0
         ports:
           - 9200:9200
-        environment:
-          discovery.type: single-node
 
     steps:
       # Étape pour récupérer le code source du dépôt
@@ -64,7 +62,7 @@ jobs:
             docker container rm elasticsearch || true
 
             # Démarrer un nouveau conteneur Elasticsearch
-            docker run -d --name elasticsearch --network job_network -p 9200:9200 -e "discovery.type=single-node" docker.elastic.co/elasticsearch/elasticsearch:8.14.0
+            docker run -d --name elasticsearch --network job_network -p 9200:9200 docker.elastic.co/elasticsearch/elasticsearch:8.14.0
 
             # Attendre que Elasticsearch soit prêt
             until curl -sS http://elasticsearch:9200; do
@@ -73,4 +71,4 @@ jobs:
             done
 
             # Démarrer un nouveau conteneur pour l'application
-            docker run -d --name job_market_api --network job_network -p 8000:8000 -e ELASTIC_HOST=elasticsearch -e ELASTIC_PORT=9200 ${{ secrets.DOCKER_USERNAME }}/job_market:latest
+            docker run -d --name job_market_api --network job_network -p 8000:8000 ${{ secrets.DOCKER_USERNAME }}/job_market:latest
