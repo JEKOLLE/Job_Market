@@ -4,7 +4,7 @@ name: Action
 on:
   push:
     branches:
-      - main
+      - JulesAPI
 
 # Définition des jobs du workflow
 jobs:

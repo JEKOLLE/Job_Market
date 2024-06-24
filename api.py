@@ -44,7 +44,7 @@ async def read_root():
     Returns:
         dict: Message de bienvenue.
     """
-    return {"message": "Bienvenue sur l'API des offres d'emploi"}
+    return {"message": "Bienvenue sur l'API des offres d'emploi."}
 
 
 @app.post("/jobs/", response_model=JobOffer)
