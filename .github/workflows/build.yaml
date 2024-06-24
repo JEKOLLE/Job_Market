@@ -1,6 +1,6 @@
 name: Action
 
-# Déclenche le workflow à chaque push sur la branche main
+# Déclenche le workflow à chaque push sur la branche JulesAPI
 on:
   push:
     branches:
@@ -34,6 +34,16 @@ jobs:
             echo "Waiting for Elasticsearch...";
             sleep 10;
           done
+
+      # Étape pour copier le fichier des offres d'emploi dans le conteneur Elasticsearch
+      - name: Copy Job Offers Data to Elasticsearch Container
+        run: |
+          docker cp data/all_prepared_jobs.json elasticsearch:/all_prepared_jobs.json
+
+      # Étape pour indexer les données d'offres d'emploi dans Elasticsearch
+      - name: Index Job Offers Data in Elasticsearch
+        run: |
+          docker exec elasticsearch curl -sS -H "Content-Type: application/json" -XPOST http://elasticsearch:9200/jobs_market/_bulk --data-binary @/all_prepared_jobs.json
 
       # Étape de Continuous Integration : Construire et pousser l'image Docker de l'application
       - name: Continuous Integration
@@ -69,6 +79,12 @@ jobs:
               echo "Waiting for Elasticsearch...";
               sleep 10;
             done
+
+            # Copier le fichier des offres d'emploi dans le conteneur Elasticsearch
+            docker cp data/job_offers.json elasticsearch:/job_offers.json
+
+            # Indexer les données d'offres d'emploi dans Elasticsearch
+            docker exec elasticsearch curl -sS -H "Content-Type: application/json" -XPOST http://elasticsearch:9200/offres_emploi4/_bulk --data-binary @/job_offers.json
 
             # Démarrer un nouveau conteneur pour l'application
             docker run -d --name job_market_api --network job_network -p 8000:8000 ${{ secrets.DOCKER_USERNAME }}/job_market:latest
