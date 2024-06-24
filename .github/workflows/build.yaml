@@ -27,14 +27,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Étape pour attendre que Elasticsearch soit prêt
-      #- name: Wait for Elasticsearch
-      #  run: |
-      #    until curl -sS http://elasticsearch:9200; do
-      #      echo "Waiting for Elasticsearch...";
-      #      sleep 10;
-      #    done
-
       # Étape pour copier le fichier des offres d'emploi dans le conteneur Elasticsearch
       - name: Copy Job Offers Data to Elasticsearch Container
         run: |
@@ -75,10 +67,10 @@ jobs:
             docker run -d --name elasticsearch --network job_network -p 9200:9200 docker.elastic.co/elasticsearch/elasticsearch:8.14.0
 
             # Attendre que Elasticsearch soit prêt
-           # until curl -sS http://elasticsearch:9200; do
-           #   echo "Waiting for Elasticsearch...";
-           #   sleep 10;
-           # done
+            # until curl -sS http://elasticsearch:9200; do
+            #   echo "Waiting for Elasticsearch...";
+            #   sleep 10;
+            # done
 
             # Copier le fichier des offres d'emploi dans le conteneur Elasticsearch
             docker cp data/job_offers.json elasticsearch:/job_offers.json
