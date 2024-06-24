@@ -7,13 +7,21 @@ import os
 
 app = FastAPI()
 
-# Initialize the Elasticsearch client
-ES_HOST = os.getenv("ES_HOST", "localhost")
-ES_PORT = os.getenv("ES_PORT", "9200")
-es = AsyncElasticsearch(hosts=[f"http://{ES_HOST}:{ES_PORT}"])
+# Initialiser le client Elasticsearch
+ELASTIC_HOST = os.getenv(
+    "ELASTIC_HOST", "elasticsearch"
+)  # Utiliser le nom du conteneur Elasticsearch dans le host
+ELASTIC_PORT = os.getenv("ELASTIC_PORT", "9200")
+ELASTIC_USERNAME = os.getenv("ELASTIC_USERNAME", "elastic")
+ELASTIC_PASSWORD = os.getenv("ELASTIC_PASSWORD", "")
+
+es = AsyncElasticsearch(
+    hosts=[f"http://{ELASTIC_HOST}:{ELASTIC_PORT}"],
+    http_auth=(ELASTIC_USERNAME, ELASTIC_PASSWORD),
+)
 
 
-# Pydantic model for the job offer
+# Pydantic model pour l'offre d'emploi
 class JobOffer(BaseModel):
     id: Optional[str] = None
     Job: Optional[str] = None
